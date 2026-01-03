@@ -1,5 +1,7 @@
 let playlistData = [];
 let currentIndex = 0;
+let isShuffle = false;
+let isLoop = false;
 
 const audioPlayerElement = document.getElementById('audioPlayer');
 const player = new Plyr(audioPlayerElement, {
@@ -10,6 +12,8 @@ const player = new Plyr(audioPlayerElement, {
 const albumArt = document.getElementById('albumArt');
 const btnPrev = document.getElementById('btnPrev');
 const btnNext = document.getElementById('btnNext');
+const btnShuffle = document.getElementById('btnShuffle');
+const btnLoop = document.getElementById('btnLoop');
 const mainContent = document.getElementById('main-content');
 
 const pickr = Pickr.create({
@@ -38,7 +42,12 @@ pickr.on('change', (color, source, instance) => {
 });
 
 player.on('ended', () => {
-    playNext();
+    if (isLoop) {
+        player.restart();
+        player.play();
+    } else {
+        playNext();
+    }
 });
 
 audioPlayerElement.onerror = function() {
@@ -46,8 +55,20 @@ audioPlayerElement.onerror = function() {
 };
 
 function updateButtons() {
-    btnPrev.disabled = playlistData.length === 0 || currentIndex === 0;
-    btnNext.disabled = playlistData.length === 0 || currentIndex === playlistData.length - 1;
+    btnPrev.disabled = playlistData.length === 0;
+    btnNext.disabled = playlistData.length === 0;
+    btnShuffle.disabled = playlistData.length === 0;
+    btnLoop.disabled = playlistData.length === 0;
+}
+
+function toggleShuffle() {
+    isShuffle = !isShuffle;
+    btnShuffle.classList.toggle('active', isShuffle);
+}
+
+function toggleLoop() {
+    isLoop = !isLoop;
+    btnLoop.classList.toggle('active', isLoop);
 }
 
 async function loadPlaylist() {
@@ -73,6 +94,7 @@ async function loadPlaylist() {
         renderPlaylist();
         
         mainContent.classList.remove('hidden');
+        updateButtons();
         
         if(playlistData.length > 0) playTrack(0);
         
@@ -163,9 +185,21 @@ async function playTrack(index) {
 }
 
 function playNext() {
-    playTrack(currentIndex + 1);
+    if (isShuffle) {
+        let randomIndex = Math.floor(Math.random() * playlistData.length);
+        while (randomIndex === currentIndex && playlistData.length > 1) {
+            randomIndex = Math.floor(Math.random() * playlistData.length);
+        }
+        playTrack(randomIndex);
+    } else {
+        if (currentIndex < playlistData.length - 1) {
+            playTrack(currentIndex + 1);
+        }
+    }
 }
 
 function playPrevious() {
-    playTrack(currentIndex - 1);
+    if (currentIndex > 0) {
+        playTrack(currentIndex - 1);
+    }
 }

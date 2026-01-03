@@ -33,6 +33,7 @@ h1, h2, h3 { letter-spacing: -0.03em; }
     position: absolute;
     top: 20px;
     right: 20px;
+    z-index: 9999;
 }
 
 .pcr-button {
@@ -149,7 +150,7 @@ input:focus { border-color: var(--accent-color); }
 .playlist-controls {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 15px;
     margin-bottom: 20px;
     width: 100%;
 }
@@ -166,12 +167,15 @@ input:focus { border-color: var(--accent-color); }
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 
-.control-btn svg { width: 32px; height: 32px; fill: #e0e0e0; }
+.control-btn svg { width: 28px; height: 28px; fill: #e0e0e0; transition: fill 0.2s; }
 .control-btn:hover { background-color: rgba(255, 255, 255, 0.1); }
 .control-btn:disabled { opacity: 0.3; }
+
+.control-btn.active svg { fill: var(--accent-color); }
+.control-btn.active { background-color: rgba(255, 255, 255, 0.05); }
 
 .playlist-column {
     flex: 1.5;
