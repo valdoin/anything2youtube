@@ -9,10 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css"/> 
-    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
+    <a href="https://github.com/valdoin/anything2youtube" target="_blank" class="github-btn" title="source code">
+        <img src="{{ url_for('static', filename='assets/github icon.svg') }}" alt="GitHub">
+    </a>
 
     <div class="color-picker-container"></div>
 
@@ -59,7 +62,7 @@
             <ul id="playlist"></ul>
         </div>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
