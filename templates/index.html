@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>anything2youtube</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css"/> 
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="color-picker-container"></div>
+
+    <h1>anything2youtube</h1>
+    
+    <div class="input-group">
+        <input type="text" id="playlistURL" placeholder="spotify/apple music/deezer playlist link...">
+        <button onclick="loadPlaylist()" id="btnLoad">load</button>
+    </div>
+
+    <div id="main-content" class="hidden">
+        <div class="player-column">
+            <div id="player-card">
+                <img id="albumArt" src="" alt="Album Art">
+                
+                <div class="track-info">
+                    <h2 id="current-title"></h2>
+                    <div id="current-artist">-</div>
+                </div>
+
+                <div class="playlist-controls">
+                    <button id="btnPrev" onclick="playPrevious()" class="control-btn" disabled>
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                    </button>
+                    <button id="btnNext" onclick="playNext()" class="control-btn" disabled>
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6z"/></svg>
+                    </button>
+                </div>
+
+                <audio id="audioPlayer" controls></audio>
+            </div>
+        </div>
+
+        <div class="playlist-column">
+            <ul id="playlist"></ul>
+        </div>
+    </div>
+
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
