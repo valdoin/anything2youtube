@@ -35,7 +35,10 @@ The frontend uses:
 1. Install the required packages:
    `pip install -r requirements.txt`
 
-2. Run the application:
+2. Prepare cookies:
+    [Follow this guide](https://github.com/yt-dlp/yt-dlp/wiki/extractors)
+
+3. Run the application:
    `python app.py`
 
-3. Open your browser and navigate to the local address (usually `http://127.0.0.1:5000`).
+4. Open your browser and navigate to the local address (usually `http://127.0.0.1:5000`).
