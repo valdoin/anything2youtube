@@ -2,6 +2,7 @@ let playlistData = [];
 let currentIndex = 0;
 let isShuffle = false;
 let isLoop = false;
+const trackCache = new Map();
 
 const audioPlayerElement = document.getElementById('audioPlayer');
 const player = new Plyr(audioPlayerElement, {
@@ -15,23 +16,15 @@ const btnNext = document.getElementById('btnNext');
 const btnShuffle = document.getElementById('btnShuffle');
 const btnLoop = document.getElementById('btnLoop');
 const mainContent = document.getElementById('main-content');
+const ytLinkBtn = document.getElementById('yt-link');
 
 const pickr = Pickr.create({
     el: '.color-picker-container',
     theme: 'nano',
     default: '#FF0000',
-    
     components: {
-        preview: true,
-        opacity: false,
-        hue: true,
-
-        interaction: {
-            hex: true,
-            rgba: false,
-            input: true,
-            save: false
-        }
+        preview: true, opacity: false, hue: true,
+        interaction: { hex: true, rgba: false, input: true, save: false }
     }
 });
 
@@ -73,7 +66,7 @@ function toggleLoop() {
 
 async function loadPlaylist() {
     const url = document.getElementById('playlistURL').value;
-    if(!url) return alert("missing link");
+    if(!url) return alert("Missing link");
     
     document.getElementById('btnLoad').disabled = true;
     
@@ -95,11 +88,11 @@ async function loadPlaylist() {
         
         mainContent.classList.remove('hidden');
         updateButtons();
+        trackCache.clear();
         
         if(playlistData.length > 0) playTrack(0);
         
     } catch(e) { 
-        console.error(e);
         alert('server error');
     } finally { 
         document.getElementById('btnLoad').disabled = false; 
@@ -129,7 +122,6 @@ async function playTrack(index) {
 
     document.querySelectorAll('.track-item').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.status').forEach(e => e.innerText = ""); 
-
     const activeItem = document.getElementById(`track-${index}`);
     if(activeItem) {
         activeItem.classList.add('active');
@@ -141,46 +133,91 @@ async function playTrack(index) {
     
     document.getElementById('current-title').innerText = track.title;
     document.getElementById('current-artist').innerText = track.artist;
-    
     document.title = `${track.title} • ${track.artist}`;
     
+    ytLinkBtn.classList.add('hidden');
     albumArt.style.display = "none";
     albumArt.src = "";
 
     try {
-        const res = await fetch('/api/find_video', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ query: track.query })
-        });
-        const data = await res.json();
+        let videoData;
 
-        if(data.audioUrl) {
-            if (data.thumbnail) {
-                albumArt.src = data.thumbnail;
+        if (trackCache.has(track.query)) {
+            videoData = trackCache.get(track.query);
+        } else {
+            const res = await fetch('/api/find_video', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ query: track.query })
+            });
+            videoData = await res.json();
+        }
+
+        if(videoData.audioUrl) {
+            if (!trackCache.has(track.query)) {
+                trackCache.set(track.query, videoData);
+            }
+
+            if (videoData.thumbnail) {
+                albumArt.src = videoData.thumbnail;
                 albumArt.style.display = "block";
+            }
+
+            if (videoData.youtubeUrl) {
+                ytLinkBtn.href = videoData.youtubeUrl;
+                ytLinkBtn.classList.remove('hidden'); 
             }
             
             player.source = {
                 type: 'audio',
                 title: track.title,
-                sources: [
-                    {
-                        src: data.audioUrl,
-                        type: 'audio/mp4',
-                    },
-                ],
+                sources: [{ src: videoData.audioUrl, type: 'audio/mp4' }],
             };
             
-            player.play();
+            await player.play();
             if(statusEl) statusEl.innerText = "playing...";
+
+            preloadNextTrack(index);
+
         } else {
             if(statusEl) statusEl.innerText = "error";
             setTimeout(playNext, 2000);
         }
     } catch(e) {
-        console.error(e);
         playNext();
+    }
+}
+
+async function preloadNextTrack(currentIndex) {
+    let nextIndex;
+    if (isShuffle) {
+        if (playlistData.length > 1) {
+             nextIndex = (currentIndex + 1) % playlistData.length; 
+        }
+    } else {
+        if (currentIndex < playlistData.length - 1) {
+            nextIndex = currentIndex + 1;
+        } else if (isLoop) {
+            nextIndex = 0;
+        }
+    }
+
+    if (nextIndex !== undefined) {
+        const nextTrack = playlistData[nextIndex];
+        if (!trackCache.has(nextTrack.query)) {
+            try {
+                const res = await fetch('/api/find_video', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ query: nextTrack.query })
+                });
+                const data = await res.json();
+                if (data.audioUrl) {
+                    trackCache.set(nextTrack.query, data);
+                }
+            } catch (e) {
+            }
+        }
     }
 }
 
@@ -194,6 +231,8 @@ function playNext() {
     } else {
         if (currentIndex < playlistData.length - 1) {
             playTrack(currentIndex + 1);
+        } else if (isLoop && playlistData.length > 1) {
+             playTrack(0);
         }
     }
 }

@@ -1,5 +1,5 @@
 :root {
-    --accent-color: #1DB954;
+    --accent-color: #FF0000;
     --plyr-color-main: var(--accent-color);
     --bg-color: #121212;
     --card-bg: #1e1e1e;
@@ -38,18 +38,16 @@ h1, h2, h3 { letter-spacing: -0.03em; }
     justify-content: center;
     transition: transform 0.2s;
     z-index: 1000;
+    cursor: pointer;
 }
 
-.github-btn:hover {
-    transform: scale(1.05);
-}
+.github-btn:hover { transform: scale(1.05); }
 
-.github-btn img {
+.github-btn svg {
     width: 60%;
     height: 60%;
-    filter: brightness(0) invert(1); 
+    fill: white; 
 }
-
 
 .pcr-app {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
@@ -74,14 +72,8 @@ h1, h2, h3 { letter-spacing: -0.03em; }
     transition: transform 0.2s;
 }
 
-.pcr-button:hover {
-    transform: scale(1.05);
-}
-
-.pcr-button::before {
-    display: none !important;
-    background: none !important;
-}
+.pcr-button:hover { transform: scale(1.05); }
+.pcr-button::before { display: none !important; background: none !important; }
 
 .pcr-button::after {
     background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>') no-repeat center center !important;
@@ -171,15 +163,46 @@ input:focus { border-color: var(--accent-color); }
     background-color: #000;
 }
 
-.track-info { width: 100%; margin-bottom: 15px; }
-#current-title { margin: 0 0 8px 0; font-size: 1.4rem; line-height: 1.2; }
+.track-info { width: 100%; margin-bottom: 5px; }
+
+.title-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+#current-title { margin: 0; line-height: 1; font-size: 1.4rem; }
+
+#yt-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+#yt-link.hidden { display: none; }
+
+#yt-link:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+}
+
+#yt-link svg {
+    height: 1.4rem;
+    width: auto;
+    fill: var(--accent-color);
+    transition: fill 0.2s;
+}
+
 #current-artist { color: #b3b3b3; font-size: 1rem; font-weight: 500; }
 
 .playlist-controls {
     display: flex;
     justify-content: center;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     width: 100%;
 }
 
@@ -241,13 +264,29 @@ input:focus { border-color: var(--accent-color); }
 .track-item.active span:first-child { font-weight: bold; }
 
 .status {
-    font-size: 1.2em;
+    font-size: 0.9em;
     min-width: 40px;
     text-align: center;
     display: inline-block;
 }
 
 .plyr { width: 100%; border-radius: 8px; }
+
+.plyr--audio .plyr__controls {
+    background: transparent !important; 
+    border: none !important;
+    color: white !important; 
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.plyr__time {
+    color: #b3b3b3 !important;
+}
+
+.plyr__control:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
 
 @media (max-width: 900px) {
     #main-content { flex-direction: column; align-items: center; }
