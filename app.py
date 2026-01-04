@@ -8,7 +8,10 @@ import urllib.parse
 import os
 
 app = Flask(__name__)
-app.json.ensure_ascii = False 
+app.json.ensure_ascii = False
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+COOKIE_PATH = os.path.join(BASE_DIR, 'cookies.txt')
 
 URL_CACHE = {}
 
@@ -18,7 +21,7 @@ YDL_OPTIONS = {
     'quiet': True,
     'extract_flat': False,
     'no_warnings': True,
-    'cookiefile': 'cookies.txt',
+    'cookiefile': COOKIE_PATH,
     'nocheckcertificate': True,
     'ignoreerrors': True,
     'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -34,18 +37,19 @@ def stream():
     video_url = request.args.get('url')
     if not video_url:
         return "Missing URL", 400
-    
+
     range_header = request.headers.get('Range', None)
     req_headers = {
         'User-Agent': YDL_OPTIONS['user_agent']
     }
-    
+
     if range_header:
         req_headers['Range'] = range_header
 
     try:
+
         req = requests.get(video_url, stream=True, verify=False, headers=req_headers)
-        
+
         resp_headers = {
             'Content-Type': 'audio/mp4',
             'Accept-Ranges': 'bytes',
@@ -55,14 +59,14 @@ def stream():
 
         if 'Content-Length' in req.headers:
             resp_headers['Content-Length'] = req.headers['Content-Length']
-        
+
         if 'Content-Range' in req.headers:
             resp_headers['Content-Range'] = req.headers['Content-Range']
 
         status_code = req.status_code
 
         def generate():
-            for chunk in req.iter_content(chunk_size=131072): 
+            for chunk in req.iter_content(chunk_size=131072):
                 if chunk:
                     yield chunk
 
@@ -147,7 +151,7 @@ def scrape_apple_music(url):
                         tracks.append({"title": name, "artist": artist_name, "query": f"{artist_name} - {name}"})
                 return tracks
             return []
-        
+
         raw_data = script_tag.string
         try: decoded_data = urllib.parse.unquote(raw_data)
         except: decoded_data = raw_data
@@ -178,7 +182,7 @@ def get_tracks():
     elif "deezer.com" in url: tracks = scrape_deezer(url)
     elif "apple.com" in url: tracks = scrape_apple_music(url)
     else: return jsonify({"error": "Service not supported"}), 400
-    
+
     if not tracks: return jsonify({"error": "Unable to read playlist."}), 400
     return jsonify({"tracks": tracks})
 
@@ -186,28 +190,28 @@ def get_tracks():
 def find_video():
     data = request.json
     query = data.get('query')
-    
+
     if query in URL_CACHE:
         return jsonify(URL_CACHE[query])
 
     try:
         with yt_dlp.YoutubeDL(YDL_OPTIONS) as ydl:
             info = ydl.extract_info(f"ytsearch1:{query}", download=False)
-            
+
             if 'entries' in info and len(info['entries']) > 0:
                 video_info = info['entries'][0]
-                
+
                 audio_url = None
                 for f in video_info.get('formats', []):
                     if f.get('acodec') != 'none' and f.get('vcodec') == 'none':
                         audio_url = f['url']
                         break
-                
+
                 if not audio_url:
                     audio_url = video_info.get('url')
 
                 thumbnail = video_info.get('thumbnail')
-                
+
                 proxied_url = f"/stream?url={urllib.parse.quote(audio_url)}"
 
                 result = {
@@ -217,13 +221,14 @@ def find_video():
                     "thumbnail": thumbnail,
                     "duration": video_info.get('duration')
                 }
-                
+
                 URL_CACHE[query] = result
                 return jsonify(result)
-                        
+
         return jsonify({"error": "Not found"}), 404
 
-    except Exception:
+    except Exception as e:
+        print(f"Erreur extraction: {e}")
         return jsonify({"error": "Extraction error"}), 500
 
 if __name__ == '__main__':

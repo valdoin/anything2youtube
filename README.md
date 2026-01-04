@@ -32,13 +32,23 @@ The frontend uses:
 
 ## Usage
 
-1. Install the required packages:
+1. Environment Setup (Recommended)
+It is best practice to run this application in a virtual environment to avoid conflicts.
+
+```python -m venv venv```
+
+Activate it 
+
+Windows : ```venv\Scripts\activate```  
+Linux : ```source venv/bin/activate```
+
+2. Install the required packages:
    `pip install -r requirements.txt`
 
-2. Prepare cookies:
+3. Prepare cookies:
     [Follow this guide](https://github.com/yt-dlp/yt-dlp/wiki/extractors)
 
-3. Run the application:
+4. Run the application:
    `python app.py`
 
-4. Open your browser and navigate to the local address (usually `http://127.0.0.1:5000`).
+5. Open your browser and navigate to the local address (usually `http://127.0.0.1:5000`).
